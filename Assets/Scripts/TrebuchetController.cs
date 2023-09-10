@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
 
 public class TrebuchetController : MonoBehaviour
 {
     [SerializeField] private float weightMass;
+    [SerializeField] private float projectileDestroyDelay;
     [SerializeField] private Rigidbody weightRb;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private GameObject slingArm;
@@ -14,53 +17,64 @@ public class TrebuchetController : MonoBehaviour
 
     private bool trueTrigger;
 
-    //[SerializeField] private Transform slingArm;
     [SerializeField] private Transform projectileSpawnPoint;
 
     private bool isCoroutineRunning = false;
+
+    [SerializeField] private Toggle autoLaunchToggle;
+    [SerializeField] private Slider rotationSlider;
+
+
 
     //[SerializeField] private AnimationCurve curve;
 
     void Start()
     {
         weightRb.mass = weightMass;
+
     }
 
     void Update()
     {
         LaunchProjectile();
-
         Positioning();
         AddProjectile();
+        UserSliderRotation();
+
+        autoLaunchToggle.isOn = autoLaunch;
     }
 
     private void LaunchProjectile()
     {   
         if (autoLaunch == true)
         {
-            //ACA ESTA EL ERROR SOLUCIONALO BOLUDAZO!!!!! ES EL TRUE TRIGGER. LA NUEVA INSTANCIA ESTA BIEN, EL TEMA ES QUE SE DA LA CONDICION Y SE DESACTIVA EL HINGE AUTOMATICAMENTE.
+
             if (trueTrigger == true)
             {
-                if (projectilePrefab != null)
-                {
-                    HingeJoint hingleToDestroy;
-                    hingleToDestroy = newProjectileReference.GetComponent<HingeJoint>();
 
-                    Destroy(hingleToDestroy);
+                HingeJoint hingleToDestroy;
+                hingleToDestroy = newProjectileReference.GetComponent<HingeJoint>();
 
-                }
+                Destroy(hingleToDestroy);
+
+                
             }
             if (Input.GetKeyDown(KeyCode.Space))
             {
+
                 weightRb.isKinematic = false;
+                Destroy(newProjectileReference, projectileDestroyDelay);
 
             }
         }
         else
         {
+
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 weightRb.isKinematic = false;
+
+                Destroy(newProjectileReference, projectileDestroyDelay);
 
             }
 
@@ -72,6 +86,7 @@ public class TrebuchetController : MonoBehaviour
                 Destroy(hingleToDestroy);
             }
         }
+
     }
 
     private void Positioning()
@@ -101,7 +116,7 @@ public class TrebuchetController : MonoBehaviour
                 Rigidbody slingArmRB = slingArm.GetComponent<Rigidbody>();
                 if (slingArmRB != null)
                 {
-                    float forceMagnitude = weightMass - (weightMass * 0.60f);
+                    float forceMagnitude = weightMass - (weightMass * 0.45f);
                     Vector3 downwardForce = -slingArm.transform.up * forceMagnitude;
 
                     float elapsedTime = 0.0f;
@@ -159,8 +174,52 @@ public class TrebuchetController : MonoBehaviour
 
     }
 
-    public void SetAutoLaunch(bool value)
+    public bool SetLaunchTrigger
     {
-        trueTrigger = value;
+        get
+        {
+            return trueTrigger;
+        }
+        set
+        {
+            trueTrigger = value;
+        }
     }
+
+    public bool SetAutoLaunch
+    {
+        get
+        {
+            return autoLaunch;
+        }
+        set
+        {
+            autoLaunch = value;
+        }
+    }
+
+    public void UserToggle(bool newValue)
+    {
+        autoLaunch = newValue;
+    }
+
+    public void UserSliderRotation()
+    {
+        float rotationValue = rotationSlider.value;
+        transform.rotation = Quaternion.Euler(0f, rotationValue, 0f);
+    }
+
+    public Vector3 GetLaunchPoint()
+    {
+        if (projectileSpawnPoint != null)
+        {
+            return projectileSpawnPoint.position;
+        }
+        else
+        {
+            // Si el punto de lanzamiento no está configurado, devuelve la posición del objeto TrebuchetController.
+            return transform.position;
+        }
+    }
+
 }
