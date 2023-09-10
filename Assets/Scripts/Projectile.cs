@@ -16,7 +16,7 @@ public class Projectile : MonoBehaviour
     {
         trebuchetController = FindObjectOfType<TrebuchetController>();
 
-        initialHeight = transform.position.y;
+        initialHeight = transform.position.y - 0.17f;
         initialPosition = transform.position;
         initialTime = Time.time;
 
