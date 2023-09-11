@@ -6,16 +6,18 @@ using UnityEngine.UI;
 
 public class TrebuchetController : MonoBehaviour
 {
-    [SerializeField] private float weightMass;
+    [SerializeField] public float weightMass;
     [SerializeField] private float projectileDestroyDelay;
     [SerializeField] private Rigidbody weightRb;
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private GameObject slingArm;
     [SerializeField] private bool autoLaunch;
 
+
     private GameObject newProjectileReference;
 
     private bool trueTrigger;
+    private bool thereIsAmmo;
 
     [SerializeField] private Transform projectileSpawnPoint;
 
@@ -25,13 +27,10 @@ public class TrebuchetController : MonoBehaviour
     [SerializeField] private Slider rotationSlider;
 
 
-
-    //[SerializeField] private AnimationCurve curve;
-
     void Start()
     {
         weightRb.mass = weightMass;
-
+        thereIsAmmo = false;
     }
 
     void Update()
@@ -42,6 +41,7 @@ public class TrebuchetController : MonoBehaviour
         UserSliderRotation();
 
         autoLaunchToggle.isOn = autoLaunch;
+        weightRb.mass = weightMass;
     }
 
     private void LaunchProjectile()
@@ -57,7 +57,9 @@ public class TrebuchetController : MonoBehaviour
 
                 Destroy(hingleToDestroy);
 
-                
+                thereIsAmmo = false;
+
+
             }
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -65,6 +67,7 @@ public class TrebuchetController : MonoBehaviour
                 weightRb.isKinematic = false;
                 Destroy(newProjectileReference, projectileDestroyDelay);
 
+                thereIsAmmo = false;
             }
         }
         else
@@ -75,6 +78,8 @@ public class TrebuchetController : MonoBehaviour
                 weightRb.isKinematic = false;
 
                 Destroy(newProjectileReference, projectileDestroyDelay);
+
+                thereIsAmmo = false;
 
             }
 
@@ -116,7 +121,7 @@ public class TrebuchetController : MonoBehaviour
                 Rigidbody slingArmRB = slingArm.GetComponent<Rigidbody>();
                 if (slingArmRB != null)
                 {
-                    float forceMagnitude = weightMass - (weightMass * 0.45f);
+                    float forceMagnitude = weightMass - (weightMass * 0.18f);
                     Vector3 downwardForce = -slingArm.transform.up * forceMagnitude;
 
                     float elapsedTime = 0.0f;
@@ -143,31 +148,29 @@ public class TrebuchetController : MonoBehaviour
     private void AddProjectile()
     {
 
-      if (Input.GetKeyDown(KeyCode.R) && weightRb.isKinematic == true)
+      if (Input.GetKeyDown(KeyCode.R) && weightRb.isKinematic == true && thereIsAmmo == false)
       {
 
         if (projectilePrefab != null && projectileSpawnPoint != null)
         {
-            // Clona el prefab del proyectil y colócalo en la posición de projectileSpawnPoint.
             GameObject newProjectile = Instantiate(projectilePrefab, projectileSpawnPoint.position, projectileSpawnPoint.rotation);
+
+            thereIsAmmo = true;
 
             newProjectileReference = newProjectile;
 
-            // Asegúrate de que el nuevo proyectil tenga un Rigidbody.
             Rigidbody newProjectileRb = newProjectile.GetComponent<Rigidbody>();
             if (newProjectileRb != null)
             {
-                // Configura cualquier otra propiedad del Rigidbody si es necesario.
+
             }
 
-            // Asegúrate de que el nuevo proyectil tenga un HingeJoint.
             HingeJoint newProjectileHinge = newProjectile.GetComponent<HingeJoint>();
             if (newProjectileHinge != null && slingArm != null)
             {
-                // Configura el punto de anclaje y el punto de conexión al slingArm's Rigidbody.
+
                 newProjectileHinge.connectedBody = slingArm.GetComponent<Rigidbody>();
-                //newProjectileHinge.anchor = Vector3.zero; // Punto de anclaje local en el proyectil.
-                //newProjectileHinge.connectedAnchor = Vector3.zero; // Punto de anclaje local en el slingArm.
+
             }
         }
       }
@@ -207,6 +210,8 @@ public class TrebuchetController : MonoBehaviour
     {
         float rotationValue = rotationSlider.value;
         transform.rotation = Quaternion.Euler(0f, rotationValue, 0f);
+
+        GameManager.Instance.UpdateRotationText(rotationValue);
     }
 
     public Vector3 GetLaunchPoint()
@@ -217,7 +222,6 @@ public class TrebuchetController : MonoBehaviour
         }
         else
         {
-            // Si el punto de lanzamiento no está configurado, devuelve la posición del objeto TrebuchetController.
             return transform.position;
         }
     }

@@ -53,22 +53,6 @@ public class Projectile : MonoBehaviour
             trebuchetController.SetLaunchTrigger = false;
         }
     }
-
-    /* public void AddInfoListener(IProjectileInfoListener listener)
-     {
-         if (!infoListeners.Contains(listener))
-         {
-             infoListeners.Add(listener);
-         }
-     }
-
-     public void RemoveInfoListener(IProjectileInfoListener listener)
-     {
-         if (infoListeners.Contains(listener))
-         {
-             infoListeners.Remove(listener);
-         }
-     }*/
 }
 
 
