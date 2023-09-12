@@ -44,6 +44,7 @@ public class TrebuchetController : MonoBehaviour
         weightRb.mass = weightMass;
     }
 
+
     private void LaunchProjectile()
     {   
         if (autoLaunch == true)
